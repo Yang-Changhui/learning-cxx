@@ -8,7 +8,7 @@
 // 因此 `enum` 定义会污染命名空间。
 enum ColorEnum : unsigned char {
     COLOR_RED = 31,
-    COLOR_GREEN,
+    COLOR_GREEN ,
     COLOR_YELLOW,
     COLOR_BLUE,
 };
@@ -18,7 +18,7 @@ enum ColorEnum : unsigned char {
 // 作用域枚举型可以避免命名空间污染，并提供类型安全保证。
 enum class Color : int {
     Red = COLOR_RED,
-    Green,
+    Green ,
     Yellow,
     Blue,
 };
@@ -34,6 +34,7 @@ ColorEnum convert_by_pun(Color c) {
 
     TypePun pun;
     // TODO: 补全类型双关转换
+    pun.c = c;
 
     return pun.e;
 }

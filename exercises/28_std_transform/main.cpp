@@ -6,9 +6,15 @@
 // READ: `std::transform` <https://zh.cppreference.com/w/cpp/algorithm/transform>
 // READ: `std::vector::begin` <https://zh.cppreference.com/w/cpp/container/vector/begin>
 
+std::string multi_2(int x) {
+    return std::to_string(x*2);
+}
+
 int main(int argc, char **argv) {
     std::vector<int> val{8, 13, 21, 34, 55};
+    std::vector<std::string> ans;
     // TODO: 调用 `std::transform`，将 `v` 中的每个元素乘以 2，并转换为字符串，存入 `ans`
+    std::transform(val.begin(), val.end(), std::back_inserter(ans), multi_2);
     // std::vector<std::string> ans
     ASSERT(ans.size() == val.size(), "ans size should be equal to val size");
     ASSERT(ans[0] == "16", "ans[0] should be 16");
