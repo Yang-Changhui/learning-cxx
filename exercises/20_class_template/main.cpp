@@ -34,25 +34,39 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
-        int idx=0;
-        for(int i=0;i<4;++i)
+
+        // 预先存储每个阶是否需要广播
+        bool broadcast[4];
+        for(auto i=0u;i<4;++i)
         {
-            if(shape[i]!=others.shape[i]) idx++;
+            if(shape[i]!=others.shape[i])
+            {
+                broadcast[i]= true;
+                ASSERT(others.shape[i]==1,"others shape must be 1"); 
+            }
         }
-        unsigned int a[4]={1,shape[3],shape[3]*shape[2],shape[3]*shape[2]*shape[1]};
-        unsigned int b[4]={1,others.shape[3],others.shape[3]*others.shape[2],others.shape[3]*others.shape[2]*others.shape[1]};
-        
-        int i2 = 0, j2 = 0, k2 = 0, l2 = 0;
-        for (unsigned int i = 0; i < shape[0]; i++) {
-            i2 = others.shape[0] == 1 ? 0 : i;
-            for (unsigned int j = 0; j < shape[1]; j++) {
-                j2 = others.shape[1] == 1 ? 0 : j;
-                for (unsigned int k = 0; k < shape[2]; k++) {
-                    k2 = others.shape[2] == 1 ? 0 : k;
-                    for (unsigned int l = 0; l < shape[3]; l++) {
-                        l2 = others.shape[3] == 1 ? 0 : l;
-                        data[i * a[3] + j * a[2] + k * a[1] + l] +=
-                            others.data[i2 * b[3] + j2 * b[2] + k2 * b[1] + l2];
+
+        auto dst=this->data;
+        auto src=others.data;
+        T *mark[4]{src};  // 4个阶的锚点
+        for(auto i0=0u;i0<shape[0];++i0)
+        {
+            if(broadcast[0]) src=mark[0]; //  如果这个阶是广播的。回到锚点
+            mark[1]=src; // 记录下一阶的锚点
+            for(auto i1=0u;i1<shape[1];++i1)
+            {
+                if(broadcast[1]) src=mark[1]; //  如果这个阶是广播的。回到锚点
+                mark[2]=src; // 记录下一阶的锚点
+                for(auto i2=0u;i2<shape[2];++i2)
+                {
+                    if(broadcast[2]) src=mark[2]; //  如果这个阶是广播的。回到锚点
+                    mark[3]=src; // 记录下一阶的锚点
+                    for(auto i3=0u;i3<shape[3];++i3)
+                    {
+                        if(broadcast[3]) src=mark[3]; //  如果这个阶是广播的。回到锚点
+                        *dst+=*src;
+                        ++dst;
+                        ++src;
                     }
                 }
             }
